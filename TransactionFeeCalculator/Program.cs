@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
 using System;
+using System.IO;
 
 namespace TransactionFeeCalculator
 {
@@ -9,9 +9,11 @@ namespace TransactionFeeCalculator
         static void Main(string[] args)
         {
             IConfiguration config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", true, true)
                 .Build();
 
+            string fees = config.GetSection("test").Value;
             StartProgram(config);
         }
 
@@ -44,7 +46,7 @@ namespace TransactionFeeCalculator
 
         private static decimal ComputeTransactionAmount(decimal amountToBeTransferred, IConfiguration config)
         {
-            var fees = config.GetSection("fees").Value;
+            var fees = config.GetSection("test").Value;
 
             return amountToBeTransferred;
         }
