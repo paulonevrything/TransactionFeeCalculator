@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 
@@ -9,35 +8,63 @@ namespace TransactionFeeCalculator
     {
         static void Main(string[] args)
         {
-            var services = ConfigureServices();
-
-            var serviceProvider = services.BuildServiceProvider();
-
-            // calls the Run method in App, which is replacing Main
-            serviceProvider.GetService<App>().StartProgram();
-        }
-
-        private static IServiceCollection ConfigureServices()
-        {
-            IServiceCollection services = new ServiceCollection();
-
-
-            var config = LoadConfiguration();
-            services.AddSingleton(config);
-            services.AddOptions();
-            services.Configure<Fees>(config.GetSection("Fees"));
-            services.AddTransient<App>();
-
-            return services;
-        }
-
-        public static IConfiguration LoadConfiguration()
-        {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                .AddJsonFile("appsettings.json", false);
+            var configuration = builder.Build();
 
-            return builder.Build();
+            var appSettings = new AppSettings();
+            var section = configuration.GetSection("AppSettings");
+            appSettings = section.Get<AppSettings>();
+
+            StartProgram(appSettings);
         }
+
+        private static void StartProgram(AppSettings appSettings)
+        {
+            Console.WriteLine("Hello World!");
+            Console.WriteLine("Welcome to the Transaction Fee Calculator");
+
+            Console.WriteLine("Please enter the amount you want to transfer. Amount must be greater than 0!");
+            decimal amountToBeTransferred = VerifyInput(Console.ReadLine());
+
+            if (amountToBeTransferred == 0)
+            {
+                Console.WriteLine("Input is invalid. Please try again");
+                return;
+            }
+            decimal transactionFee = ComputeTransactionAmount(amountToBeTransferred, appSettings);
+
+            Console.WriteLine($"The transaction fee is: {transactionFee}");
+
+            Console.ReadLine();
+        }
+
+        private static decimal VerifyInput(string input)
+        {
+            decimal decimalValueOfInput = 0;
+            decimal.TryParse(input, out decimalValueOfInput);
+            return decimalValueOfInput;
+        }
+
+        private static decimal ComputeTransactionAmount(decimal amountToBeTransferred, AppSettings appSettings)
+        {
+
+
+
+            return amountToBeTransferred;
+        }
+    }
+
+    public class AppSettings
+    {
+        public FeesConfig[] Fees { get; set; }
+    }
+
+    public class FeesConfig
+    {
+        public decimal minAmount { get; set; }
+        public decimal maxAmount { get; set; }
+        public decimal feeAmount { get; set; }
     }
 }
