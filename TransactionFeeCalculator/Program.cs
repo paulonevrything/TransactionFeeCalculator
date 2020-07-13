@@ -28,7 +28,7 @@ namespace TransactionFeeCalculator
             Console.WriteLine("Please enter the amount you want to transfer. Amount must be greater than 0!");
             decimal amountToBeTransferred = VerifyInput(Console.ReadLine());
 
-            if (amountToBeTransferred == 0)
+            if (amountToBeTransferred == 0 || amountToBeTransferred > 999999999)
             {
                 Console.WriteLine("Input is invalid. Please try again");
                 return;
@@ -49,10 +49,15 @@ namespace TransactionFeeCalculator
 
         private static decimal ComputeTransactionAmount(decimal amountToBeTransferred, AppSettings appSettings)
         {
-
-
-
-            return amountToBeTransferred;
+            decimal feeAmount = 0;
+            for(int i = 0; i < appSettings.Fees.Length; i++)
+            {
+                if(amountToBeTransferred >= appSettings.Fees[i].minAmount && amountToBeTransferred <= appSettings.Fees[i].maxAmount)
+                {
+                    feeAmount = appSettings.Fees[i].feeAmount;
+                }
+            }
+            return feeAmount;
         }
     }
 
